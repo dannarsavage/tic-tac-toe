@@ -49,3 +49,10 @@ ol, ul {
   margin-left: 20px;
 }
 
+li.current-move {
+  font-weight: bold;
+}
+
+li.current-move button {
+  font-weight: bold;
+}
