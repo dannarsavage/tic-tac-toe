@@ -81,14 +81,17 @@ class Game extends React.Component {
 
   render() {
     const history = this.state.history;
-    const current = history[this.state.stepNumber];
-    const winner = calculateWinner(current.squares);
+    const currentMove = history[this.state.stepNumber];
+    const winner = calculateWinner(currentMove.squares);
 
     const moves = history.map((step, move) => {
-      const desc = move ?
-        'Go to move # ' + move :
-        'Go to game start';
-      const className = move === this.state.stepNumber ? 'current-move' : 'not-current-move';
+      let desc = 'Go to game start';
+      let className = '';
+      if (move) {
+        const previousMove = history[move - 1];
+        desc = 'Go to move # ' + move + ' (' + determineChangedSquare(step.squares, previousMove.squares) + ')';
+        className = move === this.state.stepNumber ? 'current-move' : 'not-current-move';
+      }
       return (
         <li key={move} className={className}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
@@ -107,7 +110,7 @@ class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board 
-            squares={current.squares}
+            squares={currentMove.squares}
             onClick={(i) => this.handleClick(i)}
           />
         </div>
@@ -146,3 +149,26 @@ function calculateWinner(squares) {
   }
   return null;
 }
+
+function determineChangedSquare(currentMoveSquares, previousMoveSquares) {
+  for (let i = 0; i < currentMoveSquares.length; i++) {
+    if (currentMoveSquares[i] !== previousMoveSquares[i])
+    {
+      return awfulCellMapping[i];
+    }
+  }
+  console.warn('Trouble determining changed cell')
+  return "";
+}
+
+let awfulCellMapping = [
+  "1, 1",
+  "2, 1",
+  "3, 1",
+  "1, 2",
+  "2, 2",
+  "3, 2",
+  "1, 3",
+  "2, 3",
+  "3, 3"
+]
