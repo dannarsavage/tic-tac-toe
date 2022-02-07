@@ -2,6 +2,20 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
+
+let awfulCellMapping = [
+  "1, 1",
+  "2, 1",
+  "3, 1",
+  "1, 2",
+  "2, 2",
+  "3, 2",
+  "1, 3",
+  "2, 3",
+  "3, 3"
+]
+
+
 function Square(props) {
   return (
     <button className="square" onClick={props.onClick}>
@@ -11,35 +25,26 @@ function Square(props) {
 }
 
 class Board extends React.Component {
-  renderSquare(i) {
-    return (
-      <Square
-        value={this.props.squares[i]}
-        onClick={() => this.props.onClick(i)} 
-      />
-    );
-  }
-
   render() {
-    return (
-      <div>
-        <div className="board-row">
-          {this.renderSquare(0)}
-          {this.renderSquare(1)}
-          {this.renderSquare(2)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(3)}
-          {this.renderSquare(4)}
-          {this.renderSquare(5)}
-        </div>
-        <div className="board-row">
-          {this.renderSquare(6)}
-          {this.renderSquare(7)}
-          {this.renderSquare(8)}
-        </div>
-      </div>
-    );
+    let rows = Array(3);
+    console.log("What");
+    for (let rowid = 0; rowid < 3; rowid++) {
+      console.log("the");
+      let eachRowElements = Array(3);
+      for (let cellid = 0; cellid < 3; cellid++) {
+        const squareId = (rowid * 3) + cellid
+        console.log("SquareID = " + squareId);
+        eachRowElements[cellid] = React.createElement(
+          Square, 
+          {
+            value: this.props.squares[squareId], 
+            onClick:() => this.props.onClick(squareId)
+          })
+      }
+      rows[rowid] = React.createElement('div', {className: "board-row", key: rowid}, eachRowElements[0], eachRowElements[1], eachRowElements[2])
+    }
+
+    return (React.createElement('div', {}, rows[0], rows[1], rows[2]));
   }
 }
 
@@ -161,14 +166,3 @@ function determineChangedSquare(currentMoveSquares, previousMoveSquares) {
   return "";
 }
 
-let awfulCellMapping = [
-  "1, 1",
-  "2, 1",
-  "3, 1",
-  "1, 2",
-  "2, 2",
-  "3, 2",
-  "1, 3",
-  "2, 3",
-  "3, 3"
-]
