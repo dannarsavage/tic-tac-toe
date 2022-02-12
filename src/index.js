@@ -44,6 +44,15 @@ function Board(props) {
   return (React.createElement('div', {}, rows[0], rows[1], rows[2]));
 }
 
+/**
+ * React function component for rendering game history
+ * @param {object} props Object containing properties necessary for rendering the game history 
+ *    Required properties:
+ *      - history: array of all moves made so far in the game
+ *      - jumpToMove: function for actions to take when a button is clicked to jump to a different move in the history 
+ *      - stepNumber: integer indicating the move to be displayed to the user
+ * @returns Rendered game history list with current move emboldened
+ */
 function GameHistory(props) {
   const moves = props.history.map((step, move) => {
     let desc = 'Go to game start';
