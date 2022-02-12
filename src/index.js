@@ -44,6 +44,26 @@ function Board(props) {
   return (React.createElement('div', {}, rows[0], rows[1], rows[2]));
 }
 
+function GameHistory(props) {
+  const moves = props.history.map((step, move) => {
+    let desc = 'Go to game start';
+    let className = '';
+    if (move) {
+      const previousMove = props.history[move - 1];
+      desc = 'Go to move # ' + move + ' (' + determineChangedSquare(step.squares, previousMove.squares) + ')';
+      className = move === props.stepNumber ? 'current-move' : 'not-current-move';
+    }
+    return (
+      <li key={move} className={className}>
+        <button onClick={() => props.jumpToMove(move)}>{desc}</button>
+      </li>
+    );
+  });
+  return (
+      <ol>{moves}</ol>
+    )
+}
+
 class Game extends React.Component {
   constructor(props) {
     super(props);
@@ -84,21 +104,6 @@ class Game extends React.Component {
     const history = this.state.history;
     const currentMove = history[this.state.stepNumber];
     const winner = calculateWinner(currentMove.squares);
-
-    const moves = history.map((step, move) => {
-      let desc = 'Go to game start';
-      let className = '';
-      if (move) {
-        const previousMove = history[move - 1];
-        desc = 'Go to move # ' + move + ' (' + determineChangedSquare(step.squares, previousMove.squares) + ')';
-        className = move === this.state.stepNumber ? 'current-move' : 'not-current-move';
-      }
-      return (
-        <li key={move} className={className}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
-      );
-    });
   
     let status;
     if (winner) {
@@ -117,7 +122,11 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>{status}</div>
-          <ol>{moves}</ol>
+          <GameHistory
+            history={this.state.history}
+            stepNumber={this.state.stepNumber}
+            jumpToMove={(mv) => this.jumpTo(mv)}
+          />
         </div>
       </div>
     );
