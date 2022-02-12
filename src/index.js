@@ -2,7 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 
-
+/**
+ * Array to map board cells to columns and rows
+ */
 let awfulCellMapping = [
   "1, 1",
   "2, 1",
@@ -16,7 +18,15 @@ let awfulCellMapping = [
 ]
 
 
-function Square(props) {
+/**
+ * Function component that renders one square in the board
+ * @param {object} props Object containing properties necessary for rendering the square
+ *    Required properties:
+ *      - value: value to display in the square: 'X' or 'O' or null
+ *      - onClick: function for actions to take when the square is clicked 
+ * @returns Rendered square
+ */
+ function Square(props) {
   return (
     <button className="square" onClick={props.onClick}>
       {props.value}
@@ -24,6 +34,14 @@ function Square(props) {
   );
 }
 
+/**
+ * Function component that renders the board
+ * @param {object} props Object containing properties necessary for rendering the game board
+ *    Required properties:
+ *      - squares: a collection of Square components to assemble into a board
+ *      - squareClick: function for actions to take when the square is clicked 
+ * @returns Rendered tic-tac-toe game board
+ */
 function Board(props) {
   let rows = Array(3);
   for (let rowid = 0; rowid < 3; rowid++) {
@@ -35,7 +53,7 @@ function Board(props) {
         Square, 
         {
           value: props.squares[squareId], 
-          onClick:() => props.onClick(squareId)
+          onClick:() => props.squareClick(squareId)
         })
     }
     rows[rowid] = React.createElement('div', {className: "board-row", key: rowid}, eachRowElements[0], eachRowElements[1], eachRowElements[2])
@@ -44,7 +62,17 @@ function Board(props) {
   return (React.createElement('div', {}, rows[0], rows[1], rows[2]));
 }
 
+/**
+ * Top-level component to render tic-tac-toe game. Handles all state and passes rendering to sub-components
+ */
 class Game extends React.Component {
+  /**
+   * Constructor that sets up state
+   *  - Creates nine empty squares 
+   *  - Initializes stepNumber to 0
+   *  - Begins the game with X's move being first
+   * @param {object} props  Object containing properties for rendering the component (No props needed)
+   */
   constructor(props) {
     super(props);
     this.state = {
@@ -56,7 +84,12 @@ class Game extends React.Component {
     }
   }
 
-  handleBoardClick(i) {
+  /**
+   * Handles the click of a board square.  Turns an empty square into 'X' or 'O' depending upon whose turn it is
+   *  and ignores clicks when a winner has already been determined or the clicked square already has been taken
+   * @param {number} i   Integer representing the index of the board square that was clicked 
+   */
+   handleSquareClick(i) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
@@ -73,6 +106,10 @@ class Game extends React.Component {
     });
   }
 
+  /**
+   * Jumps to a step of the game
+   * @param {number} step  Integer representing the index of the move to jump to
+   */
   jumpTo(step) {
     this.setState({
       stepNumber: step,
@@ -80,6 +117,10 @@ class Game extends React.Component {
     })
   }
 
+  /**
+   * Renders the Game
+   * @returns Rendered game board representing the current or selected state of the game
+   */
   render() {
     const history = this.state.history;
     const currentMove = history[this.state.stepNumber];
@@ -112,7 +153,7 @@ class Game extends React.Component {
         <div className="game-board">
           <Board 
             squares={currentMove.squares}
-            onClick={(i) => this.handleBoardClick(i)}
+            squareClick={(i) => this.handleSquareClick(i)}
           />
         </div>
         <div className="game-info">
@@ -131,6 +172,11 @@ ReactDOM.render(
   document.getElementById('root')
 );
 
+/**
+ * Determines whether the game (represented by the squares parameter) has a winner 
+ * @param {Array} squares  Array of squares to inspect to determine whether there's a winner
+ * @returns 'X' if X has won, 'O' if O has won, and null if no one has won
+ */
 function calculateWinner(squares) {
   const lines = [
     [0, 1, 2],
@@ -151,6 +197,12 @@ function calculateWinner(squares) {
   return null;
 }
 
+/**
+ * Returns the index of the square that has changed between the previous move and the current move
+ * @param {Array} currentMoveSquares Array representing the squares as of the current move
+ * @param {Array} previousMoveSquares Array representing the squares as of the previous move
+ * @returns index of the square that has changed between the previous move and the current move
+ */
 function determineChangedSquare(currentMoveSquares, previousMoveSquares) {
   for (let i = 0; i < currentMoveSquares.length; i++) {
     if (currentMoveSquares[i] !== previousMoveSquares[i])
