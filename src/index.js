@@ -30,7 +30,6 @@ function Board(props) {
     let eachRowElements = Array(3);
     for (let cellid = 0; cellid < 3; cellid++) {
       const squareId = (rowid * 3) + cellid
-      console.log("SquareID = " + squareId);
       eachRowElements[cellid] = React.createElement(
         Square, 
         {
@@ -51,16 +50,23 @@ function Board(props) {
  *      - history: array of all moves made so far in the game
  *      - jumpToMove: function for actions to take when a button is clicked to jump to a different move in the history 
  *      - stepNumber: integer indicating the move to be displayed to the user
+ *      - sortAscending: Boolean indicating whether to sort the history ascending
  * @returns Rendered game history list with current move emboldened
  */
 function GameHistory(props) {
-  const moves = props.history.map((step, move) => {
+  const orderedHistory = props.sortAscending ? 
+    props.history :
+    props.history.reverse();
+  const moves = orderedHistory.map((step, move) => {
     let desc = 'Go to game start';
     let className = '';
-    if (move) {
-      const previousMove = props.history[move - 1];
+    const previousMoveIndex = props.sortAscending ?
+      move - 1 :
+      move + 1;
+    const previousMove = orderedHistory[previousMoveIndex];
+    if (previousMove !== undefined) {
       desc = 'Go to move # ' + move + ' (' + determineChangedSquare(step.squares, previousMove.squares) + ')';
-      className = move === props.stepNumber ? 'current-move' : 'not-current-move';
+      className = move === props.stepNumber ? 'current-move' : '';
     }
     return (
       <li key={move} className={className}>
@@ -82,7 +88,14 @@ class Game extends React.Component {
       }],
       stepNumber: 0,
       xIsNext: true,
+      sortHistoryAscending: true,
     }
+  }
+
+  flipHistorySortOrder() {
+    this.setState({
+      sortHistoryAscending: !this.state.sortHistoryAscending,
+    });
   }
 
   handleBoardClick(i) {
@@ -130,11 +143,13 @@ class Game extends React.Component {
           />
         </div>
         <div className="game-info">
-          <div>{status}</div>
+        <div>{status}</div>
+        <div><button onClick={() => this.flipHistorySortOrder()}>Flip History</button></div>
           <GameHistory
             history={this.state.history}
             stepNumber={this.state.stepNumber}
             jumpToMove={(mv) => this.jumpTo(mv)}
+            sortAscending={this.state.sortHistoryAscending}
           />
         </div>
       </div>
