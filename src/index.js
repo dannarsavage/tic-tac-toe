@@ -24,28 +24,24 @@ function Square(props) {
   );
 }
 
-class Board extends React.Component {
-  render() {
-    let rows = Array(3);
-    console.log("What");
-    for (let rowid = 0; rowid < 3; rowid++) {
-      console.log("the");
-      let eachRowElements = Array(3);
-      for (let cellid = 0; cellid < 3; cellid++) {
-        const squareId = (rowid * 3) + cellid
-        console.log("SquareID = " + squareId);
-        eachRowElements[cellid] = React.createElement(
-          Square, 
-          {
-            value: this.props.squares[squareId], 
-            onClick:() => this.props.onClick(squareId)
-          })
-      }
-      rows[rowid] = React.createElement('div', {className: "board-row", key: rowid}, eachRowElements[0], eachRowElements[1], eachRowElements[2])
+function Board(props) {
+  let rows = Array(3);
+  for (let rowid = 0; rowid < 3; rowid++) {
+    let eachRowElements = Array(3);
+    for (let cellid = 0; cellid < 3; cellid++) {
+      const squareId = (rowid * 3) + cellid
+      console.log("SquareID = " + squareId);
+      eachRowElements[cellid] = React.createElement(
+        Square, 
+        {
+          value: props.squares[squareId], 
+          onClick:() => props.onClick(squareId)
+        })
     }
-
-    return (React.createElement('div', {}, rows[0], rows[1], rows[2]));
+    rows[rowid] = React.createElement('div', {className: "board-row", key: rowid}, eachRowElements[0], eachRowElements[1], eachRowElements[2])
   }
+
+  return (React.createElement('div', {}, rows[0], rows[1], rows[2]));
 }
 
 class Game extends React.Component {
@@ -60,7 +56,7 @@ class Game extends React.Component {
     }
   }
 
-  handleClick(i) {
+  handleBoardClick(i) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length - 1];
     const squares = current.squares.slice();
@@ -111,12 +107,12 @@ class Game extends React.Component {
       status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
     }
 
-    return (
+    return ( 
       <div className="game">
         <div className="game-board">
           <Board 
             squares={currentMove.squares}
-            onClick={(i) => this.handleClick(i)}
+            onClick={(i) => this.handleBoardClick(i)}
           />
         </div>
         <div className="game-info">
