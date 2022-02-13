@@ -17,10 +17,26 @@ let awfulCellMapping = [
   "3, 3"
 ]
 
+/**
+ * Class representing one move in tic tac toe
+ */
+class Move {
+  /**
+   * Constructor
+   * @param {string} player 'X' or 'O'
+   * @param {number} cellIndex integer representing the cell of the board into which the player moved
+   * @param {Array} boardSquares Array representing the state of all squares after this move
+   */
+  constructor(player, cellIndex, boardSquares) {
+    this.Player = player;
+    this.CellIndex = cellIndex;
+    this.BoardSquares = boardSquares;
+  }
+}
 
 /**
  * Function component that renders one square in the board
- * @param {object} props Object containing properties necessary for rendering the square
+ * @param {Object} props Object containing properties necessary for rendering the square
  *    Required properties:
  *      - value: value to display in the square: 'X' or 'O' or null
  *      - onClick: function for actions to take when the square is clicked 
@@ -36,7 +52,7 @@ let awfulCellMapping = [
 
 /**
  * Function component that renders the board
- * @param {object} props Object containing properties necessary for rendering the game board
+ * @param {Object} props Object containing properties necessary for rendering the game board
  *    Required properties:
  *      - squares: a collection of Square components to assemble into a board
  *      - squareClick: function for actions to take when the square is clicked 
@@ -48,7 +64,6 @@ function Board(props) {
     let eachRowElements = Array(3);
     for (let cellid = 0; cellid < 3; cellid++) {
       const squareId = (rowid * 3) + cellid
-      console.log("SquareID = " + squareId);
       eachRowElements[cellid] = React.createElement(
         Square, 
         {
@@ -71,14 +86,12 @@ class Game extends React.Component {
    *  - Creates nine empty squares 
    *  - Initializes stepNumber to 0
    *  - Begins the game with X's move being first
-   * @param {object} props  Object containing properties for rendering the component (No props needed)
+   * @param {Object} props  Object containing properties for rendering the component (No props needed)
    */
   constructor(props) {
     super(props);
     this.state = {
-      history: [{
-        squares: Array(9).fill(null),
-      }],
+      history: [new Move(null, -1, Array(9).fill(null))],
       stepNumber: 0,
       xIsNext: true,
     }
@@ -89,18 +102,18 @@ class Game extends React.Component {
    *  and ignores clicks when a winner has already been determined or the clicked square already has been taken
    * @param {number} i   Integer representing the index of the board square that was clicked 
    */
-   handleSquareClick(i) {
+  handleSquareClick(i) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
-    const current = history[history.length - 1];
-    const squares = current.squares.slice();
+    const previousMove = history[history.length - 1];
+    let squares = previousMove.BoardSquares.slice();
     if (calculateWinner(squares) || squares[i]) {
       return;
     }
-    squares[i] = this.state.xIsNext ? 'X' : 'O';    
+    const thisMovesPlayer = this.state.xIsNext ? 'X' : 'O';
+    squares[i] = thisMovesPlayer;
+    const thisMove = new Move(thisMovesPlayer, i, squares);
     this.setState({
-      history: history.concat({
-        squares: squares,
-      }),
+      history: history.concat(thisMove),
       stepNumber: history.length,
       xIsNext: !this.state.xIsNext,
     });
@@ -124,19 +137,18 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const currentMove = history[this.state.stepNumber];
-    const winner = calculateWinner(currentMove.squares);
+    const winner = calculateWinner(currentMove.BoardSquares);
 
-    const moves = history.map((step, move) => {
+    const moves = history.map((move, index) => {
       let desc = 'Go to game start';
       let className = '';
-      if (move) {
-        const previousMove = history[move - 1];
-        desc = 'Go to move # ' + move + ' (' + determineChangedSquare(step.squares, previousMove.squares) + ')';
-        className = move === this.state.stepNumber ? 'current-move' : 'not-current-move';
+      if (index) {
+        desc = 'Go to move # ' + index + ' (' + awfulCellMapping[move.CellIndex] + ')';
+        className = index === this.state.stepNumber ? 'current-move' : 'not-current-move';
       }
       return (
-        <li key={move} className={className}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
+        <li key={index} className={className}>
+          <button onClick={() => this.jumpTo(index)}>{desc}</button>
         </li>
       );
     });
@@ -152,7 +164,7 @@ class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board 
-            squares={currentMove.squares}
+            squares={currentMove.BoardSquares}
             squareClick={(i) => this.handleSquareClick(i)}
           />
         </div>
@@ -196,21 +208,3 @@ function calculateWinner(squares) {
   }
   return null;
 }
-
-/**
- * Returns the index of the square that has changed between the previous move and the current move
- * @param {Array} currentMoveSquares Array representing the squares as of the current move
- * @param {Array} previousMoveSquares Array representing the squares as of the previous move
- * @returns index of the square that has changed between the previous move and the current move
- */
-function determineChangedSquare(currentMoveSquares, previousMoveSquares) {
-  for (let i = 0; i < currentMoveSquares.length; i++) {
-    if (currentMoveSquares[i] !== previousMoveSquares[i])
-    {
-      return awfulCellMapping[i];
-    }
-  }
-  console.warn('Trouble determining changed cell')
-  return "";
-}
-
