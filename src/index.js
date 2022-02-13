@@ -99,7 +99,7 @@ function GameHistory(props) {
       index + 1;
     const previousMove = orderedHistory[previousMoveIndex];
     if (previousMove !== undefined) {
-      desc = 'Go to move # ' + index + ' (' + move.Player + ')';
+      desc = 'Go to move # ' + index + ' (' + move.Player + ' in ' + awfulCellMapping[move.CellIndex] + ')';
       className = index === props.stepNumber ? 'current-move' : '';
     }
     return (
@@ -181,20 +181,6 @@ class Game extends React.Component {
     const history = this.state.history;
     const currentMove = history[this.state.stepNumber];
     const winner = calculateWinner(currentMove.BoardSquares);
-
-    const moves = history.map((move, index) => {
-      let desc = 'Go to game start';
-      let className = '';
-      if (index) {
-        desc = 'Go to move # ' + index + ' (' + awfulCellMapping[move.CellIndex] + ')';
-        className = index === this.state.stepNumber ? 'current-move' : 'not-current-move';
-      }
-      return (
-        <li key={index} className={className}>
-          <button onClick={() => this.jumpTo(index)}>{desc}</button>
-        </li>
-      );
-    });
   
     let status;
     if (winner) {
