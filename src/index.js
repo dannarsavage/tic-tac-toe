@@ -88,26 +88,22 @@ function Board(props) {
  * @returns Rendered game history list with current move emboldened
  */
 function GameHistory(props) {
-  const orderedHistory = props.sortAscending ? 
-    props.history :
-    props.history.reverse();
-  const moves = orderedHistory.map((move, index) => {
-    let desc = 'Go to game start';
-    let className = '';
-    const previousMoveIndex = props.sortAscending ?
-      index - 1 :
-      index + 1;
-    const previousMove = orderedHistory[previousMoveIndex];
-    if (previousMove !== undefined) {
-      desc = 'Go to move # ' + index + ' (' + move.Player + ' in ' + awfulCellMapping[move.CellIndex] + ')';
-      className = index === props.stepNumber ? 'current-move' : '';
-    }
+  let moves = props.history.map((move, index) => {
+    const desc = index === 0 
+      ? 'Go to game start'
+      : 'Go to move # ' + index + ' (' + move.Player + ' in ' + awfulCellMapping[move.CellIndex] + ')';
+    const className = index === props.stepNumber 
+      ? 'current-move'
+      : '';
     return (
       <li key={index} className={className}>
         <button onClick={() => props.jumpToMove(index)}>{desc}</button>
       </li>
     );
   });
+  if (!props.sortAscending) {
+    moves = moves.reverse();
+  }
   return (
       <ol>{moves}</ol>
     )
