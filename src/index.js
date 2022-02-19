@@ -190,7 +190,11 @@ class Game extends React.Component {
     if (winner) {
       status = 'Winner: ' + winner;
     } else {
-      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      if (this.state.history.length < 10) {
+        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      } else {
+        status = 'A strange game. The only winning move is not to play. How about a nice game of Global Thermonuclear War?';
+      }
     }
 
     return ( 
