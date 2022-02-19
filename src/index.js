@@ -42,9 +42,10 @@ class Move {
  *      - onClick: function for actions to take when the square is clicked 
  * @returns Rendered square
  */
- function Square(props) {
+function Square(props) {
+  const className = props.isWinning ? "square winning-square" : "square";
   return (
-    <button className="square" onClick={props.onClick}>
+    <button className={className} onClick={props.onClick}>
       {props.value}
     </button>
   );
@@ -67,6 +68,7 @@ function Board(props) {
       eachRowElements[cellid] = React.createElement(
         Square, 
         {
+          isWinning: props.winningSquareIndexes ? props.winningSquareIndexes.includes(squareId) : false,
           value: props.squares[squareId], 
           onClick:() => props.squareClick(squareId)
         })
@@ -176,7 +178,13 @@ class Game extends React.Component {
   render() {
     const history = this.state.history;
     const currentMove = history[this.state.stepNumber];
-    const winner = calculateWinner(currentMove.BoardSquares);
+    const winningSquareIndexes = calculateWinner(currentMove.BoardSquares);
+    let winner;
+    if (winningSquareIndexes) {
+      const history = this.state.history.slice(0, this.state.stepNumber + 1);
+      const previousMove = history[history.length - 1];
+      winner = previousMove.BoardSquares[winningSquareIndexes[0]].Player;
+    }
   
     let status;
     if (winner) {
@@ -189,6 +197,7 @@ class Game extends React.Component {
       <div className="game">
         <div className="game-board">
           <Board 
+            winningSquareIndexes={winningSquareIndexes}
             squares={currentMove.BoardSquares}
             squareClick={(i) => this.handleSquareClick(i)}
           />
@@ -218,7 +227,7 @@ ReactDOM.render(
 /**
  * Determines whether the game (represented by the squares parameter) has a winner 
  * @param {Array} squares  Array of squares to inspect to determine whether there's a winner
- * @returns 'X' if X has won, 'O' if O has won, and null if no one has won
+ * @returns null if no one has won, or an array of winning square indexes
  */
 function calculateWinner(squares) {
   const lines = [
@@ -234,7 +243,7 @@ function calculateWinner(squares) {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
-      return squares[a];
+      return lines[i];
     }
   }
   return null;
