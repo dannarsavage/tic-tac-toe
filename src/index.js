@@ -183,21 +183,25 @@ class Game extends React.Component {
     if (winningSquareIndexes) {
       const history = this.state.history.slice(0, this.state.stepNumber + 1);
       const previousMove = history[history.length - 1];
-      winner = previousMove.BoardSquares[winningSquareIndexes[0]].Player;
+      winner = previousMove.BoardSquares[winningSquareIndexes[0]];
     }
   
-    let status;
+    let statusText;
+    let statusClassName;
     if (winner) {
-      status = 'Winner: ' + winner;
+      statusText = 'Winner: ' + winner;
+      statusClassName = 'status results winner-results';
+    } else if (this.state.stepNumber < 9) {
+      statusText = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+      statusClassName = 'status';
     } else {
-      if (this.state.history.length < 10) {
-        status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
-      } else {
-        status = 'A strange game. The only winning move is not to play. How about a nice game of Global Thermonuclear War?';
-      }
+      statusText = 'A strange game. The only winning move is not to play. How about a nice game of Global Thermonuclear War?';
+      statusClassName = 'status results draw-results';
     }
 
     return ( 
+      <div className="wrapper">
+      <div className={statusClassName}>{statusText}</div>
       <div className="game">
         <div className="game-board">
           <Board 
@@ -207,7 +211,6 @@ class Game extends React.Component {
           />
         </div>
         <div className="game-info">
-        <div>{status}</div>
         <div><button onClick={() => this.flipHistorySortOrder()}>Flip History</button></div>
           <GameHistory
             history={this.state.history}
@@ -216,6 +219,7 @@ class Game extends React.Component {
             sortAscending={this.state.sortHistoryAscending}
           />
         </div>
+      </div>
       </div>
     );
   }

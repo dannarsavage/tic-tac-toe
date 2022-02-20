@@ -15,6 +15,24 @@ ol, ul {
 
 .status {
   margin-bottom: 10px;
+  margin-left: 30px;
+  height: 50px;
+  text-align: left;
+  vertical-align: middle;
+  font-size: larger;
+}
+
+.results {
+  font-size: x-large;
+  font-weight: bold;
+}
+
+.winner-results {
+  color: #474;
+}
+
+.draw-results {
+  color: #744;
 }
 
 .square {
